@@ -2,12 +2,15 @@ package com.example.testwebview;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceRequest;
@@ -15,16 +18,18 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.util.Objects;
 
 public class InterWebviewSchema extends AppCompatActivity {
-
+    private AlertDialog alertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inter_webview_schema);
+        initDialog();
         initWebview();
     }
     @SuppressLint("SetJavaScriptEnabled")
@@ -49,6 +54,17 @@ public class InterWebviewSchema extends AppCompatActivity {
                 // htmm 协议拦截
                 String path = url.getPath();
                 Log.d("ccc", "shouldInterceptRequest: " + path);
+                if (Objects.equals(path, "/aaa")) {
+
+                    // 调用 原生逻辑
+                    try {
+                        Toast.makeText(InterWebviewSchema.this, "调用原生", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Looper.prepare();
+                        Toast.makeText(InterWebviewSchema.this, "调用原生", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    }
+                }
                 return null;
 //                String response = "<html>\n" +
 //                        "<title>千度</title>\n" +
@@ -61,5 +77,25 @@ public class InterWebviewSchema extends AppCompatActivity {
         });
         webview.loadUrl("http://172.31.199.145:9876/webview_schema/index.html");
 //        webview.loadUrl("http://baidu.com");
+    }
+
+    private void initDialog() {
+        alertDialog = new AlertDialog.Builder(this)
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setTitle("webview中调起原生")
+                .setMessage("asdjkoaspdkop")
+                .create();
+//        alertDialog.show();
     }
 }
